@@ -11,16 +11,37 @@ using System.Threading.Tasks;
 
 namespace ControleDeBar.ConsoleApp.ModuloComanda
 {
-    public class RepositorioComanda: RepositorioBase
+    public class RepositorioComanda : RepositorioBase
     {
-        public RepositorioComanda(ArrayList listaRequisicaoSaida)
+        public RepositorioComanda(ArrayList listaComandas)
         {
-            this.listaRegistros = listaRequisicaoSaida;
+            listaRegistros = listaComandas;
         }
 
-        public override Comanda SelecionarPorId(int id)
+        public ArrayList SelecionarComandasEmAberto()
         {
-            return (Comanda)base.SelecionarPorId(id);
+            ArrayList comandasAberta = new ArrayList();
+
+            foreach (Comanda comanda in listaRegistros)
+            {
+                if (comanda.estaAberta)
+                    comandasAberta.Add(comanda);
+            }
+
+            return comandasAberta;
+        }
+
+        public ArrayList SelecionarComandasFechadas(DateTime data)
+        {
+            ArrayList comandasAberta = new ArrayList();
+
+            foreach (Comanda comanda in listaRegistros)
+            {
+                if (comanda.estaAberta == false && comanda.data.Date == data.Date)
+                    comandasAberta.Add(comanda);
+            }
+
+            return comandasAberta;
         }
     }
-    ]
+}

@@ -1,5 +1,4 @@
 ﻿using ControleDeBar.ConsoleApp.Compartilhado;
-using ControleDeBar.ConsoleApp.ModuloGarcom;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,10 +11,10 @@ namespace ControleDeBar.ConsoleApp.ModuloProduto
     public class Produto: EntidadeBase
     {
         public string nome;
-        public string preco;
+        public decimal preco;
 
 
-        public Produto(string nome, string preco)
+        public Produto(string nome, decimal preco)
         {
             this.nome = nome;
             this.preco = preco;
@@ -38,10 +37,12 @@ namespace ControleDeBar.ConsoleApp.ModuloProduto
             if (string.IsNullOrEmpty(nome.Trim()))
                 erro.Add("O campo \"nome\" é obrigatório");
 
-            if (string.IsNullOrEmpty(preco.Trim()))
-                erro.Add("O campo \"endereço\" é obrigatório");
+            if (preco == 0)
+            {
+                erro.Add("O campo \"Preço\" é obrigatorio");
+            }
 
-            
+
 
             return erro;
         }

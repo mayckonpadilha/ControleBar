@@ -1,6 +1,6 @@
 ﻿using ControleDeBar.ConsoleApp.Compartilhado;
 using ControleDeBar.ConsoleApp.ModuloConta;
-using ControleDeBar.ConsoleApp.ModuloGarcom;
+using ControleDeBar.ConsoleApp.ModuloFuncionario;
 using ControleDeBar.ConsoleApp.ModuloMesa;
 using ControleDeBar.ConsoleApp.ModuloProduto;
 using System;
@@ -12,210 +12,241 @@ using System.Threading.Tasks;
 
 namespace ControleDeBar.ConsoleApp.ModuloComanda
 {
-    internal class TelaComanda : TelaBase
+    internal class TelaComanda: TelaBase
     {
         private RepositorioComanda repositorioComanda;
-
-        private RepositorioMesa repositorioMesa;
         private TelaMesa telaMesa;
-
-        private RepositorioFuncionario repositorioFuncionario;
         private TelaFuncionario telaFuncionario;
-
-        private RepositorioProduto repositorioProduto;
         private TelaProduto telaProduto;
-
-        public TelaComanda(RepositorioComanda repositorioComanda,RepositorioMesa repositorioMesa, TelaMesa telaMesa,RepositorioFuncionario repositorioFuncionario, TelaFuncionario telaFuncionario,RepositorioProduto repositorioProduto, TelaProduto telaProduto)
+        public TelaComanda(RepositorioComanda repositorioComanda, TelaMesa telaMesa, TelaFuncionario telaFuncionario, TelaProduto telaProduto)
         {
             this.repositorioBase = repositorioComanda;
-            this.repositorioMesa = repositorioMesa;
+            this.repositorioComanda = repositorioComanda;
             this.telaMesa = telaMesa;
-            this.repositorioFuncionario = repositorioFuncionario;
             this.telaFuncionario = telaFuncionario;
-            this.repositorioProduto = repositorioProduto;
             this.telaProduto = telaProduto;
 
-            nomeEntidade = "Pedido";
+            nomeEntidade = "Comanda";
+            sufixo = "s";
         }
 
-        public override void InserirNovoRegistro()
+        public override string ApresentarMenu()
+        {
+            Console.Clear();
+
+            Console.WriteLine("Cadastro de Contas \n");
+
+            Console.WriteLine("Digite 1 para Abrir Nova Conta");
+            Console.WriteLine("Digite 2 para Registrar Pedidos");
+            Console.WriteLine("Digite 3 para Fechar Conta");
+            Console.WriteLine("Digite 4 para Visualizar Contas Abertas");
+
+            Console.WriteLine("Digite 5 para Visualizar Faturamento do Dia");
+
+            Console.WriteLine("Digite s para Sair");
+
+            string opcao = Console.ReadLine();
+
+            return opcao;
+        }
+
+        public void AbrirNovaComanda()
         {
             MostrarCabecalho($"Cadastro de {nomeEntidade}{sufixo}", "Inserindo um novo registro...");
 
-            bool temFuncionarios = repositorioFuncionario.TemRegistros();
+            Comanda comanda = (Comanda)ObterRegistro();
 
-            if (temFuncionarios == false)
+            if (TemErrosDeValidacao(comanda))
             {
-                MostrarMensagem("Cadastre ao menos um funcionário para cadastrar seu pedido", ConsoleColor.DarkYellow);
+                AbrirNovaComanda(); //chamada recursiva
+
                 return;
             }
 
-            bool temProduto = repositorioProduto.TemRegistros();
+            repositorioBase.Inserir(comanda);
 
-            if (temProduto == false)
-            {
-                MostrarMensagem("Cadastre ao menos um Produto para solicitar um pedido", ConsoleColor.DarkYellow);
-                return;
-            }
-
-            bool temMesa = repositorioMesa.TemRegistros();
-
-            if (temMesa == false)
-            {
-                MostrarMensagem("Cadastre ao menos um paciente para cadastrar requisições de saída", ConsoleColor.DarkYellow);
-                return;
-            }
-
-            Comanda registro = (Comanda)ObterRegistro();
-
-            if (TemErrosDeValidacao(registro))
-            {
-                return;
-            }
-
-            registro.Comanda();
-
-            repositorioBase.Inserir(registro);
+            AdicionarPedidos(comanda);
 
             MostrarMensagem("Registro inserido com sucesso!", ConsoleColor.Green);
         }
 
-        public override void EditarRegistro()
+        public bool VisualizarComandasAbertas()
         {
-            MostrarCabecalho($"Cadastro de {nomeEntidade}{sufixo}", "Editando um registro já cadastrado...");
+            MostrarCabecalho($"Cadastro de {nomeEntidade}{sufixo}", "Visualizando comandas em aberto...");
 
-            bool temFuncionarios = repositorioFuncionario.TemRegistros();
+            ArrayList contasEmAberto = repositorioComanda.SelecionarComandasEmAberto();
 
-            if (temFuncionarios == false)
+            if (contasEmAberto.Count == 0)
             {
-                MostrarMensagem("Cadastre ao menos um funcionário para solicitar pedido", ConsoleColor.DarkYellow);
-                return;
+                MostrarMensagem("Nenhuma comanda em aberto", ConsoleColor.DarkYellow);
+                return false;
             }
 
-            bool temProduto = repositorioProduto.TemRegistros();
+            MostrarTabela(contasEmAberto);
 
-            if (temProduto == false)
-            {
-                MostrarMensagem("Cadastre ao menos um produto para solicitar um pedido", ConsoleColor.DarkYellow);
+            return contasEmAberto.Count > 0;
+        }
+
+        public void RegistrarPedidos()
+        {
+            MostrarCabecalho($"Cadastro de {nomeEntidade}{sufixo}", "Registrando pedidos...");
+
+            bool temComandaEmAberto = VisualizarComandasAbertas();
+
+            if (temComandaEmAberto == false)
                 return;
-            }
 
-            bool temMesa = repositorioMesa.TemRegistros();
+            Comanda comandaSelecionada = (Comanda)EncontrarRegistro("Digite o id da Conta: ");
 
-            if (temMesa == false)
-            {
-                MostrarMensagem("Cadastre ao menos uma mesa para solicitar um pedido", ConsoleColor.DarkYellow);
+            Console.WriteLine("Digite 1 para adicionar pedidos");
+            Console.WriteLine("Digite 2 para remover pedidos");
+
+            string opcao = Console.ReadLine();
+
+            if (opcao == "1")
+                AdicionarPedidos(comandaSelecionada);
+
+            else if (opcao == "2")
+                RemoverPedidos(comandaSelecionada);
+        }
+
+        public void FecharConta()
+        {
+            MostrarCabecalho($"Cadastro de {nomeEntidade}{sufixo}", "Fechando contas...");
+
+            bool temComandaEmAberto = VisualizarComandasAbertas();
+
+            if (temComandaEmAberto == false)
                 return;
-            }
 
-            VisualizarRegistros(false);
+            Comanda comandaSelecionada = (Comanda)EncontrarRegistro("Digite o id da Conta: ");
+
+            comandaSelecionada.FecharComanda();
+
+            MostrarMensagem("Comanda fechada com sucesso", ConsoleColor.Green);
+        }
+
+        public void VisualizarFaturamentoDoDia()
+        {
+            MostrarCabecalho($"Cadastro de {nomeEntidade}{sufixo}", "Visualizando faturamento do dia...");
+
+            Console.WriteLine("Digite a data: ");
+            DateTime data = Convert.ToDateTime(Console.ReadLine());
+
+            ArrayList comandasFechadasNoDia = repositorioComanda.SelecionarComandasFechadas(data);
+
+            FaturamentoDiario faturamentoDiario = new FaturamentoDiario(comandasFechadasNoDia);
+
+            decimal totalFaturado = faturamentoDiario.CalcularTotal();
+
+            Console.WriteLine("Contas fechadas na data: " + data.ToShortDateString());
+
+            MostrarTabela(comandasFechadasNoDia);
 
             Console.WriteLine();
 
-            Comanda solicitarPedido = (Comanda)EncontrarRegistro("Digite o id do pedido: ");
-
-            Comanda requisicaoSaidaAtualizado = (Comanda)ObterRegistro();
-
-            if (TemErrosDeValidacao(requisicaoSaidaAtualizado))
-            {
-                return;
-            }
-
-            solicitarPedido.DesfazerRegistroSaida();
-
-            requisicaoSaidaAtualizado.RegistrarSaida();
-
-            repositorioBase.Editar(requisicaoSaida, requisicaoSaidaAtualizado);
-
-            MostrarMensagem("Registro editado com sucesso!", ConsoleColor.Green);
+            MostrarMensagem("Total faturado: " + totalFaturado, ConsoleColor.Green);
         }
 
-        public override void ExcluirRegistro()
-        {
-            MostrarCabecalho($"Cadastro de {nomeEntidade}{sufixo}", "Excluindo um registro já cadastrado...");
-
-            VisualizarRegistros(false);
-
-            Console.WriteLine();
-
-            //int id = EncontrarId();
-
-            RequisicaoSaida requisicaoSaida = (RequisicaoSaida)EncontrarRegistro("Digite o id do registro: ");
-
-            requisicaoSaida.DesfazerRegistroSaida();
-
-            repositorioBase.Excluir(requisicaoSaida);
-
-            MostrarMensagem("Registro excluído com sucesso!", ConsoleColor.Green);
-        }
+        
 
         protected override void MostrarTabela(ArrayList registros)
         {
-            const string FORMATO_TABELA = "{0, -10} | {1, -10} | {2, -20} | {3, -20} | {4, -20} | {5, -20}";
-
-            Console.WriteLine(FORMATO_TABELA, "Id", "Data", "Medicamento", "Fonecedor", "Paciente", "Quantidade");
-
-            Console.WriteLine("--------------------------------------------------------------------");
-
-            foreach (RequisicaoSaida requisicaoSaida in registros)
+            foreach (Comanda conta in registros)
             {
-                Console.WriteLine(FORMATO_TABELA,
-                    requisicaoSaida.id,
-                    requisicaoSaida.data.ToShortDateString(),
-                    requisicaoSaida.medicamento.nome,
-                    requisicaoSaida.medicamento.fornecedor.nome,
-                    requisicaoSaida.paciente.nome,
-                    requisicaoSaida.quantidade);
+                Console.WriteLine("Conta: " + conta.id + ", Mesa: " + conta.mesa.numero + ", Garçom: " + conta.funcionario.nome);
+                Console.WriteLine();
+                foreach (Pedido pedido in conta.pedidos)
+                {
+                    Console.WriteLine("\tProduto: " + pedido.produto.nome + ", Qtd: " + pedido.quantidade);
+                }
+
+                Console.WriteLine("------------------------------------------------------\n");
             }
         }
 
         protected override EntidadeBase ObterRegistro()
         {
-            Medicamento medicamento = ObterMedicamento();
+            Mesa mesaSelecionada = ObterMesa();
 
-            Funcionario funcionario = ObterFuncionario();
-
-            Paciente paciente = ObterPaciente();
-
-            Console.Write("Digite a quantidade de caixas: ");
-            int quantidade = Convert.ToInt32(Console.ReadLine());
+            Funcionario funcionarioSelecionado = ObterFuncionario();
 
             Console.Write("Digite a data: ");
-            DateTime data = Convert.ToDateTime(Console.ReadLine());
 
-            return new RequisicaoSaida(medicamento, quantidade, data, funcionario, paciente);
+            DateTime dataAbertura = Convert.ToDateTime(Console.ReadLine());
+
+            return new Comanda(mesaSelecionada, funcionarioSelecionado, dataAbertura);
         }
 
-        private Paciente ObterPaciente()
-        {
-            telaPaciente.VisualizarRegistros(false);
 
-            Paciente paciente = (Paciente)telaPaciente.EncontrarRegistro("Digite o id do paciente: ");
+        private void AdicionarPedidos(Comanda comandaSelecionada)
+        {
+            Console.WriteLine("Selecionar produtos? [s] ou [n]");
+
+            Console.Write(" -> ");
+
+            string opcao = Console.ReadLine();
+
+            while (opcao == "s")
+            {
+                Produto produto = ObterProduto();
+
+                Console.Write("Digite a quantidade: ");
+                int quantidade = Convert.ToInt32(Console.ReadLine());
+
+                comandaSelecionada.RegistrarPedido(produto, quantidade);
+
+                Console.WriteLine("Selecionar mais produtos? [s] ou [n]");
+
+                Console.Write(" -> ");
+
+                opcao = Console.ReadLine();
+            }
+        }
+
+        private Produto ObterProduto()
+        {
+            telaProduto.VisualizarRegistros(false);
+
+            Produto produto = (Produto)telaProduto.EncontrarRegistro("Digite o id do Produto: ");
 
             Console.WriteLine();
 
-            return paciente;
+            return produto;
+        }
+
+        private void RemoverPedidos(Comanda comandaSelecionada)
+        {
+            int id = 0;
+
+            if (comandaSelecionada.pedidos.Count == 0)
+            {
+                MostrarMensagem("Nenhum pedido cadastrado para esta comanda", ConsoleColor.DarkYellow);
+                return;
+            }
         }
 
         private Funcionario ObterFuncionario()
         {
             telaFuncionario.VisualizarRegistros(false);
 
-            Funcionario funcionario = (Funcionario)telaFuncionario.EncontrarRegistro("Digite o id do funcionário: ");
+            Funcionario funcionarioSelecionado = (Funcionario)telaFuncionario.EncontrarRegistro("Digite o id do Funcionario: ");
 
             Console.WriteLine();
 
-            return funcionario;
+            return funcionarioSelecionado;
         }
 
-        private Medicamento ObterMedicamento()
+        private Mesa ObterMesa()
         {
-            telaMedicamento.VisualizarRegistros(false);
+            telaMesa.VisualizarRegistros(false);
 
-            Medicamento medicamento = (Medicamento)telaMedicamento.EncontrarRegistro("Digite o id do medicamento: ");
+            Mesa mesaSelecionada = (Mesa)telaMesa.EncontrarRegistro("Digite o id da Mesa: ");
 
             Console.WriteLine();
 
-            return medicamento;
+            return mesaSelecionada;
         }
+
     }
+}

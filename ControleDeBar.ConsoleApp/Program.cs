@@ -1,7 +1,7 @@
 ﻿using ControleDeBar.ConsoleApp.ModuloComanda;
-using ControleDeBar.ConsoleApp.ModuloGarcom;
 using ControleDeBar.ConsoleApp.ModuloMesa;
 using ControleDeBar.ConsoleApp.ModuloProduto;
+using ControleDeBar.ConsoleApp.ModuloFuncionario;
 using System.Collections;
 
 namespace ControleDeBar.ConsoleApp
@@ -19,7 +19,7 @@ namespace ControleDeBar.ConsoleApp
             TelaMesa telaMesa = new TelaMesa(repositorioMesa);
             TelaFuncionario telaFuncionario = new TelaFuncionario(repositorioFuncionario);
             TelaProduto telaPoduto = new TelaProduto(repositorioProduto);
-            TelaComanda telaComanda = new TelaComanda(repositorioComanda);
+            TelaComanda telaComanda = new TelaComanda(repositorioComanda,telaMesa,telaFuncionario,telaPoduto);
 
             TelaPrincipal principal = new TelaPrincipal();
 
@@ -99,24 +99,24 @@ namespace ControleDeBar.ConsoleApp
                 }
                 else if (opcao == "4")
                 {
-                    string subMenu = telaPoduto.ApresentarMenu();
+                    string subMenu = telaComanda.ApresentarMenu();
 
                     if (subMenu == "1")
                     {
-                        telaComanda.InserirNovoRegistro();
+                        telaComanda.AbrirNovaComanda();
                     }
                     else if (subMenu == "2")
                     {
-                        telaComanda.VisualizarRegistros(true);
+                        telaComanda.RegistrarPedidos();
                         Console.ReadLine();
                     }
                     else if (subMenu == "3")
                     {
-                        telaComanda.EditarRegistro();
+                        telaComanda.FecharConta();
                     }
                     else if (subMenu == "4")
                     {
-                        telaComanda.ExcluirRegistro();
+                        telaComanda.VisualizarComandasAbertas();
                     }
                 }
 

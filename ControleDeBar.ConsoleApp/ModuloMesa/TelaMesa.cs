@@ -1,5 +1,4 @@
 ﻿using ControleDeBar.ConsoleApp.Compartilhado;
-using ControleDeBar.ConsoleApp.ModuloGarcom;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -19,33 +18,28 @@ namespace ControleDeBar.ConsoleApp.ModuloMesa
         }
 
         protected override void MostrarTabela(ArrayList registros)
+
         {
-            Console.WriteLine("{0, -10} | {1, -20} | {2, -20}| {3, -20}| {4, -20}| {5, -20}", "Id", "Numero", "Localização","Quantidade de Lugares", "Ocupada");
+            
+            Console.WriteLine("{0, -10} | {1, -20} | {2, -20}", "Id", "Numero", "Ocupada");
 
             Console.WriteLine("--------------------------------------------------------------------");
 
             foreach (Mesa mesa in registros)
             {
-                Console.WriteLine("{0, -10} | {1, -20} | {2, -20}| {3, -20}| {4, -20}| {5, -20}", mesa.id, mesa.numero,mesa.localizacao, mesa.quantidadeLugares, mesa.ocupado);
+                string ocupada = mesa.ocupada ? "Ocupada" : "Desocupada";
+                Console.WriteLine("{0, -10} | {1, -20} | {2, -20}", (mesa.id, mesa.numero, ocupada);
             }
         }
 
         protected override EntidadeBase ObterRegistro()
         {
-            Console.Write("Digite o nome: ");
-            string numero = Console.ReadLine();
-
-            Console.Write("Digite o Endereço: ");
-            string localizacao = Console.ReadLine();
-
-            Console.Write("Digite o Endereço: ");
-            string quantidadeLugares = Console.ReadLine();
-
-            bool ocupado = false;
+            Console.WriteLine("Digite o numero da mesa: ");
+            string numeroMesa = Console.ReadLine();
 
 
 
-            return new Mesa(numero, localizacao, quantidadeLugares,ocupado);
+            return new Mesa(numeroMesa);
         }
     }
 }

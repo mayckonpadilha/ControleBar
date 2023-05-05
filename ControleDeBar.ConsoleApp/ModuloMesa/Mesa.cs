@@ -1,5 +1,4 @@
 ﻿using ControleDeBar.ConsoleApp.Compartilhado;
-using ControleDeBar.ConsoleApp.ModuloGarcom;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,46 +12,43 @@ namespace ControleDeBar.ConsoleApp.ModuloMesa
     public class Mesa:EntidadeBase
     {
         public string numero;
-        public string localizacao;
-        public string quantidadeLugares;
-        public bool ocupado;
+        public bool ocupada;
 
-        public Mesa(string numero, string localizacao, string quantidadeLugares, bool ocupado)
+        public Mesa(string numeroMesa)
         {
-            this.numero = numero;
-            this.localizacao = localizacao;
-            this.quantidadeLugares = quantidadeLugares;
-            this.ocupado = ocupado;
+            numero = numeroMesa;
         }
 
         public override void AtualizarInformacoes(EntidadeBase registroAtualizado)
         {
-            Mesa mesaAtualizado = (Mesa)registroAtualizado;
+            Mesa mesaAtualizada = (Mesa)registroAtualizado;
 
-            this.numero = mesaAtualizado.numero;
-            this.localizacao = mesaAtualizado.localizacao;
-            this.quantidadeLugares = mesaAtualizado .quantidadeLugares;
-            this.ocupado = mesaAtualizado.ocupado;
+            this.numero = mesaAtualizada.numero;
         }
 
         public override ArrayList Validar()
         {
-            ArrayList erro = new ArrayList();
+            ArrayList erros = new ArrayList();
 
             if (string.IsNullOrEmpty(numero.Trim()))
-                erro.Add("O campo \"nome\" é obrigatório");
-
-            if (string.IsNullOrEmpty(localizacao.Trim()))
-                erro.Add("O campo \"Localização\" é obrigatório");
-
-            if (string.IsNullOrEmpty(quantidadeLugares.Trim()))
-                erro.Add("O campo \"Quantidade de Lugares\" é obrigatório");
+            {
+                erros.Add("O campo \"Número da Mesa\" é obrigatorio");
+            }
+            return erros;
 
 
 
-            return erro;
+        }
+        public void Desocupar()
+        {
+            ocupada = false; ;
         }
 
-       
+        public void Ocupar()
+        {
+            ocupada = true;
+        }
+
+
     }
 }

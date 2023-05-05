@@ -1,5 +1,4 @@
 ﻿using ControleDeBar.ConsoleApp.Compartilhado;
-using ControleDeBar.ConsoleApp.ModuloGarcom;
 using System;
 using System.Collections;
 using System.Collections.Generic;

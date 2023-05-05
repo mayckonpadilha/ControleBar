@@ -7,19 +7,18 @@ using System.Threading.Tasks;
 using System.Collections;
 
 
-namespace ControleDeBar.ConsoleApp.ModuloGarcom
+
+namespace ControleDeBar.ConsoleApp.ModuloFuncionario
 {
     public class Funcionario: EntidadeBase
     {
         public string nome;
-        public string endereco;
-        public string idade;
+        
 
-        public Funcionario(string nome, string endereco, string idade)
+        public Funcionario(string nomeFuncionario)
         {
-            this.nome = nome;
-            this.endereco = endereco;
-            this.idade = idade;
+            this.nome = nomeFuncionario;
+           
         }
 
         public override void AtualizarInformacoes(EntidadeBase registroAtualizado)
@@ -27,24 +26,20 @@ namespace ControleDeBar.ConsoleApp.ModuloGarcom
             Funcionario funcionarioAtualizado = (Funcionario)registroAtualizado;
 
             this.nome = funcionarioAtualizado.nome;
-            this.endereco = funcionarioAtualizado.endereco;
-            this.idade = funcionarioAtualizado.idade;
+                
         }
+         
 
         public override ArrayList Validar()
         {
-            ArrayList erro = new ArrayList();
+            ArrayList erros = new ArrayList();
 
             if (string.IsNullOrEmpty(nome.Trim()))
-                erro.Add("O campo \"nome\" é obrigatório");
+            {
+                erros.Add("O campo \"Nome\" é obrigatório");
+            }
 
-            if (string.IsNullOrEmpty(endereco.Trim()))
-                erro.Add("O campo \"endereço\" é obrigatório");
-
-            if (string.IsNullOrEmpty(idade.Trim()))
-                erro.Add("O campo \"idade\" é obrigatório");
-            
-            return erro;
+            return erros;
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using ControleDeBar.ConsoleApp.Compartilhado;
-using ControleDeBar.ConsoleApp.ModuloGarcom;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -32,15 +31,16 @@ namespace ControleDeBar.ConsoleApp.ModuloProduto
 
         protected override EntidadeBase ObterRegistro()
         {
-            Console.Write("Digite o nome: ");
-            string nome = Console.ReadLine();
+            Console.Write("Digite o nome do produto: ");
+            string nomeProduto = Console.ReadLine();
 
-            Console.Write("Digite o Endereço: ");
-            string preco = Console.ReadLine();
+            Console.WriteLine("Digite o valor do produto ");
+            decimal precoProduto = Convert.ToDecimal(Console.ReadLine());
 
-            
 
-            return new Produto(nome, preco);
+
+
+            return new Produto(nomeProduto, precoProduto);
         }
     }
 }
